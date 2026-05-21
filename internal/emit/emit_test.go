@@ -17,6 +17,11 @@ func TestEmitDropsSingleTrailingSpaceAtSoftWrap(t *testing.T) {
 	assertBytes(t, got, []byte("alpha beta\n"))
 }
 
+func TestEmitPreservesParagraphHardBreak(t *testing.T) {
+	got := emitFixture(t, "alpha   \nbeta\ngamma\n")
+	assertBytes(t, got, []byte("alpha   \nbeta gamma\n"))
+}
+
 func TestEmitPreservesNonParagraphBlocks(t *testing.T) {
 	src := []byte("# title\n\n```go\nfmt.Println(\"x\")\n```\n\nTitle\n---\n")
 	got := emitFixture(t, string(src))

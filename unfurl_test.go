@@ -47,6 +47,30 @@ func TestScenarioAlreadyUnwrapped(t *testing.T) {
 	}
 }
 
+func TestScenarioHardBreakPreserved(t *testing.T) {
+	src := []byte("This sentence keeps its pause.   \nThe surrounding paragraph\nstill reflows.\n")
+	want := []byte("This sentence keeps its pause.   \nThe surrounding paragraph still reflows.\n")
+	got, err := UnfurlBytes(src)
+	if err != nil {
+		t.Fatalf("UnfurlBytes returned error: %v", err)
+	}
+	if !bytes.Equal(got, want) {
+		t.Fatalf("hard-break output mismatch:\nwant %q\n got %q", want, got)
+	}
+}
+
+func TestBackslashHardBreakPreserved(t *testing.T) {
+	src := []byte("This sentence keeps its pause.\\\nThe surrounding paragraph\nstill reflows.\n")
+	want := []byte("This sentence keeps its pause.\\\nThe surrounding paragraph still reflows.\n")
+	got, err := UnfurlBytes(src)
+	if err != nil {
+		t.Fatalf("UnfurlBytes returned error: %v", err)
+	}
+	if !bytes.Equal(got, want) {
+		t.Fatalf("hard-break output mismatch:\nwant %q\n got %q", want, got)
+	}
+}
+
 func TestConstructPreservation(t *testing.T) {
 	tests := []struct {
 		name string

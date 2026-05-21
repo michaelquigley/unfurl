@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/michaelquigley/unfurl/internal/reflow"
 	"github.com/michaelquigley/unfurl/internal/tokenize"
 )
 
@@ -19,7 +20,7 @@ func Emit(w io.Writer, doc *tokenize.Document, blocks []tokenize.Block) error {
 	for _, block := range blocks {
 		var err error
 		if block.Kind == tokenize.BlockParagraph {
-			_, err = w.Write(reflowParagraph(block.Lines))
+			_, err = w.Write(reflow.ReflowLines(block.Lines))
 		} else {
 			err = writeRawBlock(w, block)
 		}
@@ -45,25 +46,4 @@ func writeRawBlock(w io.Writer, block tokenize.Block) error {
 		}
 	}
 	return nil
-}
-
-func reflowParagraph(lines []tokenize.Line) []byte {
-	if len(lines) == 0 {
-		return nil
-	}
-
-	var out bytes.Buffer
-	for i, line := range lines {
-		text := line.Text()
-		if i > 0 {
-			out.WriteByte(' ')
-			text = bytes.TrimLeft(text, " \t")
-		}
-		if i < len(lines)-1 {
-			text = bytes.TrimRight(text, " \t")
-		}
-		out.Write(text)
-	}
-	out.Write(lines[len(lines)-1].LineEnding())
-	return out.Bytes()
 }
