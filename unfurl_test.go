@@ -240,3 +240,33 @@ func TestConstructPreservation(t *testing.T) {
 		})
 	}
 }
+
+func TestByteFidelityEdgeCases(t *testing.T) {
+	tests := []struct {
+		name string
+		src  []byte
+		want []byte
+	}{
+		{name: "empty input", src: []byte{}, want: []byte{}},
+		{name: "single newline", src: []byte("\n"), want: []byte("\n")},
+		{name: "no trailing newline", src: []byte("alpha\nbeta"), want: []byte("alpha beta")},
+		{name: "crlf paragraph", src: []byte("alpha\r\nbeta\r\n"), want: []byte("alpha beta\r\n")},
+		{name: "mixed endings use first non-empty discipline", src: []byte("alpha\r\nbeta\n"), want: []byte("alpha beta\r\n")},
+		{name: "crlf hard break", src: []byte("alpha  \r\nbeta\r\n"), want: []byte("alpha  \r\nbeta\r\n")},
+		{name: "bom plain paragraph", src: append([]byte{0xEF, 0xBB, 0xBF}, []byte("alpha\nbeta\n")...), want: append([]byte{0xEF, 0xBB, 0xBF}, []byte("alpha beta\n")...)},
+		{name: "bom yaml frontmatter", src: append([]byte{0xEF, 0xBB, 0xBF}, []byte("---\ntitle: x\n---\nbody\n")...), want: append([]byte{0xEF, 0xBB, 0xBF}, []byte("---\ntitle: x\n---\nbody\n")...)},
+		{name: "bom atx heading", src: append([]byte{0xEF, 0xBB, 0xBF}, []byte("# title\n")...), want: append([]byte{0xEF, 0xBB, 0xBF}, []byte("# title\n")...)},
+		{name: "unclosed fence", src: []byte("```go\nfmt.Println(\"x\")"), want: []byte("```go\nfmt.Println(\"x\")")},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := UnfurlBytes(tt.src)
+			if err != nil {
+				t.Fatalf("UnfurlBytes returned error: %v", err)
+			}
+			if !bytes.Equal(got, tt.want) {
+				t.Fatalf("output mismatch:\nwant %q\n got %q", tt.want, got)
+			}
+		})
+	}
+}

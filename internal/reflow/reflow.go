@@ -44,7 +44,15 @@ func ReflowLines(lines []tokenize.Line) []byte {
 	return Reflow(NewParagraph(lines))
 }
 
+func ReflowLinesWithLineEnding(lines []tokenize.Line, lineEnding []byte) []byte {
+	return ReflowWithLineEnding(NewParagraph(lines), lineEnding)
+}
+
 func Reflow(paragraph Paragraph) []byte {
+	return ReflowWithLineEnding(paragraph, nil)
+}
+
+func ReflowWithLineEnding(paragraph Paragraph, lineEnding []byte) []byte {
 	var out bytes.Buffer
 	for _, segment := range paragraph.Segments {
 		if len(segment.Lines) == 0 {
@@ -55,9 +63,20 @@ func Reflow(paragraph Paragraph) []byte {
 		if segment.HardBreakMarker != nil {
 			out.Write(segment.HardBreakMarker)
 		}
-		out.Write(segment.Lines[len(segment.Lines)-1].LineEnding())
+		out.Write(segmentLineEnding(segment, lineEnding))
 	}
 	return out.Bytes()
+}
+
+func segmentLineEnding(segment Segment, preferred []byte) []byte {
+	source := segment.Lines[len(segment.Lines)-1].LineEnding()
+	if len(source) == 0 {
+		return nil
+	}
+	if len(preferred) > 0 {
+		return preferred
+	}
+	return source
 }
 
 func joinSegment(segment Segment) []byte {

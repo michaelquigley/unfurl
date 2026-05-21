@@ -317,6 +317,31 @@ func TestTokenizePreservesRawLinesAndLineEndings(t *testing.T) {
 	assertBytes(t, "ending line 1", doc.Lines[1].LineEnding(), []byte("\n"))
 	assertBytes(t, "raw line 2", doc.Lines[2].Raw, []byte("charlie"))
 	assertBytes(t, "ending line 2", doc.Lines[2].LineEnding(), nil)
+	assertBytes(t, "document line ending", doc.LineEnding, []byte("\r\n"))
+	if doc.EndedWithNewline {
+		t.Fatal("EndedWithNewline true")
+	}
+}
+
+func TestTokenizeDetectsLFWhenFirstNonEmptyLineHasNoEnding(t *testing.T) {
+	doc, err := TokenizeBytes([]byte("alpha"))
+	if err != nil {
+		t.Fatalf("TokenizeBytes returned error: %v", err)
+	}
+	assertBytes(t, "document line ending", doc.LineEnding, []byte("\n"))
+	if doc.EndedWithNewline {
+		t.Fatal("EndedWithNewline true")
+	}
+}
+
+func TestTokenizeTracksFinalNewline(t *testing.T) {
+	doc, err := TokenizeBytes([]byte("alpha\n"))
+	if err != nil {
+		t.Fatalf("TokenizeBytes returned error: %v", err)
+	}
+	if !doc.EndedWithNewline {
+		t.Fatal("EndedWithNewline false")
+	}
 }
 
 func TestTokenizeStripsLeadingBOMBeforeClassification(t *testing.T) {

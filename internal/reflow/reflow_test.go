@@ -66,6 +66,24 @@ func TestReflowPreservesLineEndingAndTrailingNewlinePresence(t *testing.T) {
 	}
 }
 
+func TestReflowUsesPreferredLineEndingForEmittedParagraphLines(t *testing.T) {
+	doc, err := tokenize.TokenizeBytes([]byte("alpha\r\nbeta\n"))
+	if err != nil {
+		t.Fatalf("TokenizeBytes returned error: %v", err)
+	}
+	got := ReflowLinesWithLineEnding(doc.Lines, []byte("\r\n"))
+	assertBytes(t, got, []byte("alpha beta\r\n"))
+}
+
+func TestReflowUsesPreferredLineEndingForHardBreakSegments(t *testing.T) {
+	doc, err := tokenize.TokenizeBytes([]byte("alpha  \nbeta\n"))
+	if err != nil {
+		t.Fatalf("TokenizeBytes returned error: %v", err)
+	}
+	got := ReflowLinesWithLineEnding(doc.Lines, []byte("\r\n"))
+	assertBytes(t, got, []byte("alpha  \r\nbeta\r\n"))
+}
+
 func TestReflowSegmentPrefix(t *testing.T) {
 	doc, err := tokenize.TokenizeBytes([]byte("alpha\nbeta  \ngamma\ndelta\n"))
 	if err != nil {

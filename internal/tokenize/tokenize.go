@@ -22,7 +22,16 @@ func Tokenize(r io.Reader) (*Document, error) {
 				raw = raw[len(utf8BOM):]
 			}
 			if len(raw) > 0 {
-				doc.Lines = append(doc.Lines, classifyLine(len(doc.Lines), raw))
+				line := classifyLine(len(doc.Lines), raw)
+				if len(line.LineEnding()) > 0 {
+					doc.EndedWithNewline = true
+				} else {
+					doc.EndedWithNewline = false
+				}
+				if doc.LineEnding == nil && !isBlank(line.Text()) {
+					doc.LineEnding = detectedLineEnding(line)
+				}
+				doc.Lines = append(doc.Lines, line)
 			}
 		}
 		if err == io.EOF {
@@ -32,8 +41,18 @@ func Tokenize(r io.Reader) (*Document, error) {
 			return nil, fmt.Errorf("read markdown line: %w", err)
 		}
 	}
+	if doc.LineEnding == nil {
+		doc.LineEnding = []byte{'\n'}
+	}
 
 	return doc, nil
+}
+
+func detectedLineEnding(line Line) []byte {
+	if bytes.Equal(line.LineEnding(), []byte{'\r', '\n'}) {
+		return []byte{'\r', '\n'}
+	}
+	return []byte{'\n'}
 }
 
 func TokenizeBytes(src []byte) (*Document, error) {

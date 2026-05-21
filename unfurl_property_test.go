@@ -22,7 +22,7 @@ import (
 func TestPropertyASTEquivalence(t *testing.T) {
 	for _, fixture := range propertyFixtures(t) {
 		t.Run(fixture.name, func(t *testing.T) {
-			src := readFixture(t, fixture.path)
+			src := fixtureBytes(t, fixture)
 			out, err := UnfurlBytes(src)
 			if err != nil {
 				t.Fatalf("UnfurlBytes returned error: %v", err)
@@ -42,7 +42,7 @@ func TestPropertyASTEquivalence(t *testing.T) {
 func TestPropertyIdempotence(t *testing.T) {
 	for _, fixture := range propertyFixtures(t) {
 		t.Run(fixture.name, func(t *testing.T) {
-			src := readFixture(t, fixture.path)
+			src := fixtureBytes(t, fixture)
 			once, err := UnfurlBytes(src)
 			if err != nil {
 				t.Fatalf("first UnfurlBytes returned error: %v", err)
@@ -79,6 +79,7 @@ func TestScenarioClaudeOutput(t *testing.T) {
 type propertyFixture struct {
 	name string
 	path string
+	src  []byte
 }
 
 func propertyFixtures(t *testing.T) []propertyFixture {
@@ -101,6 +102,12 @@ func propertyFixtures(t *testing.T) []propertyFixture {
 		name: "unfurl-spec",
 		path: "docs/future/unfurl-spec.md",
 	})
+	fixtures = append(fixtures,
+		propertyFixture{name: "byte-bom-frontmatter", src: append([]byte{0xEF, 0xBB, 0xBF}, []byte("---\ntitle: BOM\n---\nbody wraps\nagain\n")...)},
+		propertyFixture{name: "byte-bom-heading", src: append([]byte{0xEF, 0xBB, 0xBF}, []byte("# title\n\nbody wraps\nagain\n")...)},
+		propertyFixture{name: "byte-crlf", src: []byte("alpha\r\nbeta\r\n\r\n- one\r\n  two\r\n")},
+		propertyFixture{name: "byte-no-trailing-newline", src: []byte("alpha\nbeta")},
+	)
 	sort.Slice(fixtures, func(i, j int) bool {
 		return fixtures[i].name < fixtures[j].name
 	})
@@ -114,6 +121,14 @@ func readFixture(t *testing.T, path string) []byte {
 		t.Fatalf("read %s: %v", path, err)
 	}
 	return src
+}
+
+func fixtureBytes(t *testing.T, fixture propertyFixture) []byte {
+	t.Helper()
+	if fixture.src != nil {
+		return append([]byte(nil), fixture.src...)
+	}
+	return readFixture(t, fixture.path)
 }
 
 type parsedMarkdown struct {

@@ -33,6 +33,11 @@ func TestEmitReattachesBOM(t *testing.T) {
 	assertBytes(t, got, []byte{0xEF, 0xBB, 0xBF, '#', ' ', 't', 'i', 't', 'l', 'e', '\n'})
 }
 
+func TestEmitUsesDocumentLineEndingForReflow(t *testing.T) {
+	got := emitFixture(t, "alpha\r\nbeta\n")
+	assertBytes(t, got, []byte("alpha beta\r\n"))
+}
+
 func emitFixture(t *testing.T, input string) []byte {
 	t.Helper()
 	doc, err := tokenize.TokenizeBytes([]byte(input))

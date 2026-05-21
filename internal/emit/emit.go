@@ -20,7 +20,11 @@ func Emit(w io.Writer, doc *tokenize.Document, blocks []tokenize.Block) error {
 	for _, block := range blocks {
 		var err error
 		if block.Kind == tokenize.BlockParagraph {
-			_, err = w.Write(reflow.ReflowLines(block.Lines))
+			var lineEnding []byte
+			if doc != nil {
+				lineEnding = doc.LineEnding
+			}
+			_, err = w.Write(reflow.ReflowLinesWithLineEnding(block.Lines, lineEnding))
 		} else {
 			err = writeRawBlock(w, block)
 		}

@@ -4,7 +4,7 @@ A surgical markdown unwrap utility. Collapses soft line breaks inside paragraph 
 
 ## Status
 
-Pre-1.0. Currently in implementation (chunk 1). Authoritative implementation plan lives at `docs/future/unfurl-work-order.md`; the design rationale lives at `docs/future/unfurl-spec.md`. Both have been through three rounds of mercurius review and converged to `ready_to_build`. As behavior lands, chunk-level notes migrate to `docs/current/` with brief descriptions of what was actually built; the spec and work order in `docs/future/` persist as the record of intent.
+Pre-1.0. The eight implementation chunks from `docs/future/unfurl-work-order.md` have landed. The design rationale lives at `docs/future/unfurl-spec.md`; the work order remains the record of intended implementation. `docs/current/` contains chunk-level notes describing what was actually built and any deviations.
 
 ## Stack
 

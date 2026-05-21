@@ -2,7 +2,7 @@
 
 `unfurl` is a surgical markdown unwrap utility. It collapses soft line breaks inside paragraph content while preserving every other CommonMark/GFM construct byte-for-byte.
 
-The project is currently in implementation. It can reflow paragraphs at top level and inside list or blockquote containers, preserves hard breaks, preserves the non-container Markdown constructs implemented so far including GFM tables, and has a goldmark-backed AST-equivalence/idempotence property suite; final byte-fidelity edge work lands in the last chunk according to `docs/future/unfurl-work-order.md`.
+It reflows paragraphs at top level and inside list or blockquote containers, preserves hard breaks, preserves line endings, BOMs, trailing-newline absence, code blocks, HTML blocks, front matter, reference definitions, and GFM tables. The runtime transform is hand-rolled; goldmark is used only in tests for AST-equivalence and idempotence coverage.
 
 ## Usage
 

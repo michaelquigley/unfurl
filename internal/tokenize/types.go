@@ -55,8 +55,10 @@ func (k LineKind) String() string {
 // Document is the pass-1 result. Lines are BOM-free; HadBOM records whether a
 // leading UTF-8 BOM was stripped before classification.
 type Document struct {
-	HadBOM bool
-	Lines  []Line
+	HadBOM           bool
+	LineEnding       []byte
+	EndedWithNewline bool
+	Lines            []Line
 }
 
 type Line struct {
