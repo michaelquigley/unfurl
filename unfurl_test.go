@@ -82,6 +82,106 @@ func TestScenarioTable(t *testing.T) {
 	}
 }
 
+func TestScenarioWrappedListItem(t *testing.T) {
+	src := []byte("- this is a list item whose body\n  has been wrapped across multiple\n  physical lines\n- second item\n")
+	want := []byte("- this is a list item whose body has been wrapped across multiple physical lines\n- second item\n")
+	got, err := UnfurlBytes(src)
+	if err != nil {
+		t.Fatalf("UnfurlBytes returned error: %v", err)
+	}
+	if !bytes.Equal(got, want) {
+		t.Fatalf("list output mismatch:\nwant %q\n got %q", want, got)
+	}
+}
+
+func TestScenarioBlockquote(t *testing.T) {
+	src := []byte("> a quoted paragraph that has been\n> wrapped at the source. each line\n> begins with the marker.\n")
+	want := []byte("> a quoted paragraph that has been wrapped at the source. each line begins with the marker.\n")
+	got, err := UnfurlBytes(src)
+	if err != nil {
+		t.Fatalf("UnfurlBytes returned error: %v", err)
+	}
+	if !bytes.Equal(got, want) {
+		t.Fatalf("blockquote output mismatch:\nwant %q\n got %q", want, got)
+	}
+}
+
+func TestBlockquoteLazyContinuation(t *testing.T) {
+	src := []byte("> alpha\nbeta\n> gamma\n")
+	want := []byte("> alpha beta gamma\n")
+	got, err := UnfurlBytes(src)
+	if err != nil {
+		t.Fatalf("UnfurlBytes returned error: %v", err)
+	}
+	if !bytes.Equal(got, want) {
+		t.Fatalf("blockquote output mismatch:\nwant %q\n got %q", want, got)
+	}
+}
+
+func TestListItemHardBreakUsesContinuationPrefix(t *testing.T) {
+	src := []byte("- alpha   \n  beta\ngamma\n")
+	want := []byte("- alpha   \n  beta gamma\n")
+	got, err := UnfurlBytes(src)
+	if err != nil {
+		t.Fatalf("UnfurlBytes returned error: %v", err)
+	}
+	if !bytes.Equal(got, want) {
+		t.Fatalf("list output mismatch:\nwant %q\n got %q", want, got)
+	}
+}
+
+func TestNestedContainers(t *testing.T) {
+	tests := []struct {
+		name string
+		src  string
+		want string
+	}{
+		{
+			name: "nested blockquote",
+			src:  "> > alpha\n> > beta\n",
+			want: "> > alpha beta\n",
+		},
+		{
+			name: "list inside blockquote",
+			src:  "> - alpha\n>   beta\n",
+			want: "> - alpha beta\n",
+		},
+		{
+			name: "blockquote inside list",
+			src:  "- > alpha\n  > beta\n",
+			want: "- > alpha beta\n",
+		},
+		{
+			name: "nested list",
+			src:  "- parent\n  - child\n    continuation\n",
+			want: "- parent\n  - child continuation\n",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := UnfurlBytes([]byte(tt.src))
+			if err != nil {
+				t.Fatalf("UnfurlBytes returned error: %v", err)
+			}
+			if string(got) != tt.want {
+				t.Fatalf("nested output mismatch:\nwant %q\n got %q", tt.want, string(got))
+			}
+		})
+	}
+}
+
+func TestBlockquoteLazySetextShapeReflowsAsParagraph(t *testing.T) {
+	src := []byte("> alpha\n---\n")
+	want := []byte("> alpha ---\n")
+	got, err := UnfurlBytes(src)
+	if err != nil {
+		t.Fatalf("UnfurlBytes returned error: %v", err)
+	}
+	if !bytes.Equal(got, want) {
+		t.Fatalf("blockquote output mismatch:\nwant %q\n got %q", want, got)
+	}
+}
+
 func TestTableWithPipelessBodyRowPreserved(t *testing.T) {
 	src := []byte("| a | b |\n| --- | --- |\n| x | y |\nbar\n")
 	got, err := UnfurlBytes(src)

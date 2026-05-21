@@ -61,8 +61,11 @@ type Document struct {
 
 type Line struct {
 	Index int
-	Raw   []byte
-	Kind  LineKind
+	// Prefix is emitted before Raw for lines that have had container markers
+	// stripped for recursive grouping.
+	Prefix []byte
+	Raw    []byte
+	Kind   LineKind
 
 	Indent int
 

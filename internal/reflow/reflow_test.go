@@ -87,6 +87,19 @@ func TestReflowSegmentPrefix(t *testing.T) {
 	assertBytes(t, got, []byte("> alpha beta  \n> gamma delta\n"))
 }
 
+func TestReflowCapturesLinePrefixForSegments(t *testing.T) {
+	doc, err := tokenize.TokenizeBytes([]byte("alpha  \nbeta\ngamma\n"))
+	if err != nil {
+		t.Fatalf("TokenizeBytes returned error: %v", err)
+	}
+	doc.Lines[0].Prefix = []byte("- ")
+	doc.Lines[1].Prefix = []byte("  ")
+	doc.Lines[2].Prefix = []byte("  ")
+
+	got := ReflowLines(doc.Lines)
+	assertBytes(t, got, []byte("- alpha  \n  beta gamma\n"))
+}
+
 func TestReflowIdempotentAcrossTrailingSpaceHardBreakCounts(t *testing.T) {
 	for _, input := range []string{
 		"alpha  \nbeta\n",

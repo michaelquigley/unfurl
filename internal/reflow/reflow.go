@@ -25,7 +25,7 @@ func NewParagraph(lines []tokenize.Line) Paragraph {
 	var current Segment
 	for _, line := range lines {
 		if len(current.Lines) == 0 {
-			current.Prefix = nil
+			current.Prefix = append([]byte(nil), line.Prefix...)
 		}
 		current.Lines = append(current.Lines, line)
 		if line.HardBreak {

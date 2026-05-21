@@ -41,6 +41,9 @@ func Bytes(doc *tokenize.Document, blocks []tokenize.Block) ([]byte, error) {
 
 func writeRawBlock(w io.Writer, block tokenize.Block) error {
 	for _, line := range block.Lines {
+		if _, err := w.Write(line.Prefix); err != nil {
+			return fmt.Errorf("write %s block prefix: %w", block.Kind, err)
+		}
 		if _, err := w.Write(line.Raw); err != nil {
 			return fmt.Errorf("write %s block: %w", block.Kind, err)
 		}
