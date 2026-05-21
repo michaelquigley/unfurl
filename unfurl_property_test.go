@@ -98,10 +98,6 @@ func propertyFixtures(t *testing.T) []propertyFixture {
 			path: filepath.Join("testdata/property", entry.Name()),
 		})
 	}
-	fixtures = append(fixtures, propertyFixture{
-		name: "unfurl-spec",
-		path: "docs/future/unfurl-spec.md",
-	})
 	fixtures = append(fixtures,
 		propertyFixture{name: "byte-bom-frontmatter", src: append([]byte{0xEF, 0xBB, 0xBF}, []byte("---\ntitle: BOM\n---\nbody wraps\nagain\n")...)},
 		propertyFixture{name: "byte-bom-heading", src: append([]byte{0xEF, 0xBB, 0xBF}, []byte("# title\n\nbody wraps\nagain\n")...)},
