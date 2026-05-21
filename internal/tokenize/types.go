@@ -102,6 +102,57 @@ type TableDelimiter struct {
 	CellCount int
 }
 
+type BlockKind int
+
+const (
+	BlockParagraph BlockKind = iota
+	BlockBlank
+	BlockFrontMatter
+	BlockATXHeading
+	BlockSetextHeading
+	BlockHRule
+	BlockFencedCode
+	BlockIndentedCode
+	BlockHTML
+	BlockReferenceDefinition
+	BlockRaw
+)
+
+func (k BlockKind) String() string {
+	switch k {
+	case BlockParagraph:
+		return "paragraph"
+	case BlockBlank:
+		return "blank"
+	case BlockFrontMatter:
+		return "frontmatter"
+	case BlockATXHeading:
+		return "atx_heading"
+	case BlockSetextHeading:
+		return "setext_heading"
+	case BlockHRule:
+		return "hrule"
+	case BlockFencedCode:
+		return "fenced_code"
+	case BlockIndentedCode:
+		return "indented_code"
+	case BlockHTML:
+		return "html"
+	case BlockReferenceDefinition:
+		return "reference_definition"
+	case BlockRaw:
+		return "raw"
+	default:
+		return "unknown"
+	}
+}
+
+type Block struct {
+	Kind     BlockKind
+	Lines    []Line
+	HTMLType int
+}
+
 func (l Line) Text() []byte {
 	text, _ := splitLineEnding(l.Raw)
 	return text

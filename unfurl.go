@@ -4,14 +4,22 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+
+	"github.com/michaelquigley/unfurl/internal/emit"
+	"github.com/michaelquigley/unfurl/internal/tokenize"
 )
 
 // Unfurl reads markdown from r and writes the unfurled output to w.
 // Soft line breaks inside paragraph content are collapsed; every other
 // CommonMark/GFM construct is preserved byte-for-byte.
 func Unfurl(r io.Reader, w io.Writer) error {
-	if _, err := io.Copy(w, r); err != nil {
-		return fmt.Errorf("copy markdown: %w", err)
+	doc, err := tokenize.Tokenize(r)
+	if err != nil {
+		return fmt.Errorf("tokenize markdown: %w", err)
+	}
+	blocks := tokenize.Group(doc)
+	if err := emit.Emit(w, doc, blocks); err != nil {
+		return fmt.Errorf("emit markdown: %w", err)
 	}
 	return nil
 }

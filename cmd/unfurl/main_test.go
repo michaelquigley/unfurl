@@ -13,8 +13,8 @@ func TestRootCommandStdinToStdout(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execute returned error: %v", err)
 	}
-	if stdout != "alpha\nbeta\n" {
-		t.Fatalf("stdout mismatch:\nwant %q\n got %q", "alpha\nbeta\n", stdout)
+	if stdout != "alpha beta\n" {
+		t.Fatalf("stdout mismatch:\nwant %q\n got %q", "alpha beta\n", stdout)
 	}
 	if stderr != "" {
 		t.Fatalf("stderr mismatch: %q", stderr)
@@ -32,8 +32,8 @@ func TestRootCommandFileToStdout(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execute returned error: %v", err)
 	}
-	if stdout != "file\ncontent\n" {
-		t.Fatalf("stdout mismatch:\nwant %q\n got %q", "file\ncontent\n", stdout)
+	if stdout != "file content\n" {
+		t.Fatalf("stdout mismatch:\nwant %q\n got %q", "file content\n", stdout)
 	}
 }
 
@@ -56,8 +56,8 @@ func TestRootCommandInPlaceRewritesFileAndPreservesMode(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read rewritten file: %v", err)
 	}
-	if string(got) != "file\ncontent\n" {
-		t.Fatalf("file mismatch:\nwant %q\n got %q", "file\ncontent\n", string(got))
+	if string(got) != "file content\n" {
+		t.Fatalf("file mismatch:\nwant %q\n got %q", "file content\n", string(got))
 	}
 	info, err := os.Stat(path)
 	if err != nil {
