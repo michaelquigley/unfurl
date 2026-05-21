@@ -71,6 +71,40 @@ func TestBackslashHardBreakPreserved(t *testing.T) {
 	}
 }
 
+func TestScenarioTable(t *testing.T) {
+	src := []byte("| name | value |\n| --- | ---: |\n| alpha | 1 |\n| beta | 2 |\n")
+	got, err := UnfurlBytes(src)
+	if err != nil {
+		t.Fatalf("UnfurlBytes returned error: %v", err)
+	}
+	if !bytes.Equal(got, src) {
+		t.Fatalf("table changed:\nwant %q\n got %q", src, got)
+	}
+}
+
+func TestTableWithPipelessBodyRowPreserved(t *testing.T) {
+	src := []byte("| a | b |\n| --- | --- |\n| x | y |\nbar\n")
+	got, err := UnfurlBytes(src)
+	if err != nil {
+		t.Fatalf("UnfurlBytes returned error: %v", err)
+	}
+	if !bytes.Equal(got, src) {
+		t.Fatalf("table changed:\nwant %q\n got %q", src, got)
+	}
+}
+
+func TestInvalidTableCandidateReflowsAsParagraph(t *testing.T) {
+	src := []byte("a | b\n| --- | --- | --- |\ncontinues\n")
+	want := []byte("a | b | --- | --- | --- | continues\n")
+	got, err := UnfurlBytes(src)
+	if err != nil {
+		t.Fatalf("UnfurlBytes returned error: %v", err)
+	}
+	if !bytes.Equal(got, want) {
+		t.Fatalf("invalid table output mismatch:\nwant %q\n got %q", want, got)
+	}
+}
+
 func TestConstructPreservation(t *testing.T) {
 	tests := []struct {
 		name string
@@ -82,6 +116,7 @@ func TestConstructPreservation(t *testing.T) {
 		{name: "fenced go code", src: "```go\nfmt.Println(\"x\")\n```\n"},
 		{name: "fenced mermaid", src: "```mermaid\ngraph TD\n  A --> B\n```\n"},
 		{name: "indented code", src: "    code\n    more\n"},
+		{name: "gfm table", src: "| a | b |\n| --- | --- |\n| x | y |\n"},
 		{name: "html type 1", src: "<script>\nconst x = 1;\n</script>\n"},
 		{name: "html type 2", src: "<!--\ncomment\n-->\n"},
 		{name: "html type 3", src: "<?pi\n?>\n"},

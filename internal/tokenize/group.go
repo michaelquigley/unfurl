@@ -197,6 +197,11 @@ func consumeParagraph(lines []Line, start int) (int, Block) {
 				headingLines := append(append([]Line(nil), paragraph...), line)
 				return i + 1, block(BlockSetextHeading, headingLines)
 			}
+			if line.Kind == LineTableDelimiter {
+				if tableLines, ok := tableFromParagraph(lines, paragraph, i); ok {
+					return i + len(tableLines) - len(paragraph), block(BlockTable, tableLines)
+				}
+			}
 			if interruptsParagraph(line) {
 				break
 			}
@@ -206,6 +211,44 @@ func consumeParagraph(lines []Line, start int) (int, Block) {
 		paragraph = append(paragraph, line)
 	}
 	return start + len(paragraph), block(BlockParagraph, paragraph)
+}
+
+func tableFromParagraph(lines []Line, paragraph []Line, delimiterIndex int) ([]Line, bool) {
+	if len(paragraph) != 1 {
+		return nil, false
+	}
+	header := paragraph[0]
+	delimiter := lines[delimiterIndex]
+	if header.Kind != LineParagraphText || delimiter.Kind != LineTableDelimiter {
+		return nil, false
+	}
+	if countTableCells(header.Text()) != delimiter.TableDelimiter.CellCount {
+		return nil, false
+	}
+
+	end := delimiterIndex + 1
+	for end < len(lines) && tableBodyContinues(lines[end]) {
+		end++
+	}
+
+	tableLines := make([]Line, 0, end-delimiterIndex+len(paragraph))
+	tableLines = append(tableLines, paragraph...)
+	tableLines = append(tableLines, lines[delimiterIndex:end]...)
+	return tableLines, true
+}
+
+func tableBodyContinues(line Line) bool {
+	if line.Kind == LineBlank {
+		return false
+	}
+	if line.Kind == LineTableDelimiter {
+		return true
+	}
+	return !interruptsParagraph(line)
+}
+
+func countTableCells(text []byte) int {
+	return len(splitTableCells(text))
 }
 
 func canStartParagraph(line Line) bool {

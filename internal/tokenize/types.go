@@ -111,6 +111,7 @@ const (
 	BlockATXHeading
 	BlockSetextHeading
 	BlockHRule
+	BlockTable
 	BlockFencedCode
 	BlockIndentedCode
 	BlockHTML
@@ -132,6 +133,8 @@ func (k BlockKind) String() string {
 		return "setext_heading"
 	case BlockHRule:
 		return "hrule"
+	case BlockTable:
+		return "table"
 	case BlockFencedCode:
 		return "fenced_code"
 	case BlockIndentedCode:

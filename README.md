@@ -2,7 +2,7 @@
 
 `unfurl` is a surgical markdown unwrap utility. It collapses soft line breaks inside paragraph content while preserving every other CommonMark/GFM construct byte-for-byte.
 
-The project is currently in implementation. It can reflow plain, non-container paragraphs with hard-break preservation and preserves the non-container Markdown constructs implemented so far; list, blockquote, GFM table, and property-test work lands in later chunks according to `docs/future/unfurl-work-order.md`.
+The project is currently in implementation. It can reflow plain, non-container paragraphs with hard-break preservation and preserves the non-container Markdown constructs implemented so far, including GFM tables; list, blockquote, and property-test work lands in later chunks according to `docs/future/unfurl-work-order.md`.
 
 ## Usage
 
